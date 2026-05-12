@@ -2,6 +2,7 @@ package com.marketplace;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Distributed Online Marketplace Application
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Spring 2026 Semester
  */
 @SpringBootApplication
+@EnableAsync
 public class MarketplaceApplication {
 
     public static void main(String[] args) {

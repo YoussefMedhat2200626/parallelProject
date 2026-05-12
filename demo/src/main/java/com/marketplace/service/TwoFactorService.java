@@ -2,7 +2,9 @@ package com.marketplace.service;
 
 import com.marketplace.entity.OtpCode;
 import com.marketplace.entity.OtpCode.OtpPurpose;
+import com.marketplace.entity.User;
 import com.marketplace.repository.OtpRepository;
+import com.marketplace.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,7 @@ import java.util.Optional;
 /**
  * Two-Factor Authentication service.
  * Generates 6-digit OTP codes with configurable TTL.
- * Codes are stored in MariaDB and validated once (single-use).
- * 
- * NOTE: In production, the OTP would be sent via email/SMS.
- * For this demo, the OTP is logged to console and shown in the UI.
+ * Codes are stored in MariaDB, sent via email, and validated once (single-use).
  */
 @Service
 public class TwoFactorService {
@@ -28,15 +27,19 @@ public class TwoFactorService {
     private static final int DEFAULT_TTL_MINUTES = 5;
 
     private final OtpRepository otpRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public TwoFactorService(OtpRepository otpRepository) {
+    public TwoFactorService(OtpRepository otpRepository, UserRepository userRepository,
+                            EmailService emailService) {
         this.otpRepository = otpRepository;
+        this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     /**
-     * Generate and store a new OTP code for a user.
-     * In a real system, this would be sent via email/SMS.
+     * Generate, store, and email a new OTP code for a user.
      */
     @Transactional
     public String generateOtp(Long userId, OtpPurpose purpose) {
@@ -46,8 +49,42 @@ public class TwoFactorService {
         OtpCode otp = new OtpCode(userId, code, purpose, expiresAt);
         otpRepository.save(otp);
 
-        // In production: send via email/SMS. For demo: log to console.
-        LOG.info("=== 2FA OTP for user {} ({}): {} === (expires at {})", userId, purpose, code, expiresAt);
+        LOG.info("2FA OTP generated for user {} ({}): expires at {}", userId, purpose, expiresAt);
+
+        // Send OTP via email
+        userRepository.findById(userId).ifPresent(user -> {
+            String email = user.getEmail();
+            if (email != null && !email.isBlank()) {
+                emailService.sendOtpEmail(email, code, purpose.name());
+                LOG.info("OTP email dispatched to {} for user {}", email, userId);
+            } else {
+                LOG.warn("No email address found for user {}, OTP not sent via email", userId);
+            }
+        });
+
+        return code;
+    }
+
+    /**
+     * Generate, store, and email a new OTP code — using email directly
+     * (for registration before the user is fully saved).
+     */
+    @Transactional
+    public String generateOtpWithEmail(Long userId, String email, OtpPurpose purpose) {
+        String code = String.format("%0" + OTP_LENGTH + "d", secureRandom.nextInt((int) Math.pow(10, OTP_LENGTH)));
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(DEFAULT_TTL_MINUTES);
+
+        OtpCode otp = new OtpCode(userId, code, purpose, expiresAt);
+        otpRepository.save(otp);
+
+        LOG.info("2FA OTP generated for user {} ({}): expires at {}", userId, purpose, expiresAt);
+
+        // Send OTP via email directly
+        if (email != null && !email.isBlank()) {
+            emailService.sendOtpEmail(email, code, purpose.name());
+            LOG.info("OTP email dispatched to {} for user {}", email, userId);
+        }
+
         return code;
     }
 
