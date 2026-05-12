@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Items — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link active">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2 class="page-title">My Items</h2>
+            <div class="page-actions">
+                <a th:href="@{/items/create}" class="btn btn-primary">➕ Add Item</a>
+                <a th:href="@{/items/import}" class="btn btn-outline">📄 CSV Import</a>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div th:if="${#lists.isEmpty(items)}" class="empty-state">
+            <p>You haven't listed any items yet.</p>
+            <a th:href="@{/items/create}" class="btn btn-primary">List your first item</a>
+        </div>
+
+        <div class="items-grid" th:unless="${#lists.isEmpty(items)}">
+            <div class="item-card" th:each="item : ${items}">
+                <div class="item-card-header">
+                    <span class="item-status" th:classappend="${item.status.name()}" th:text="${item.status}">ACTIVE</span>
+                    <span class="item-category" th:text="${item.category}">Category</span>
+                </div>
+                <h4 th:text="${item.name}">Item Name</h4>
+                <p class="item-brand" th:text="${item.brand}">Brand</p>
+                <p class="item-price" th:text="${item.priceFormatted}">$0.00</p>
+                <div class="item-card-actions">
+                    <a th:href="@{/items/edit/{id}(id=${item.itemId})}" class="btn btn-sm btn-secondary">Edit</a>
+                    <form th:action="@{/items/delete/{id}(id=${item.itemId})}" method="post" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

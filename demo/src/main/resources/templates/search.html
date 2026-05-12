@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Browse &amp; Search — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link active">Browse</a>
+            <a th:href="@{/items}" class="nav-link">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 class="page-title">Browse Marketplace</h2>
+
+        <form th:action="@{/search}" method="get" class="search-form">
+            <input type="text" name="q" th:value="${query}" placeholder="Search by name, brand, or category..." class="search-input"/>
+            <button type="submit" class="btn btn-primary">🔍 Search</button>
+        </form>
+
+        <div th:if="${#lists.isEmpty(items)}" class="empty-state">
+            <p>No items found. Try a different search term.</p>
+        </div>
+
+        <div class="items-grid" th:unless="${#lists.isEmpty(items)}">
+            <div class="item-card item-card-buyable" th:each="item : ${items}">
+                <div class="item-card-header">
+                    <span class="item-category" th:text="${item.category}">Category</span>
+                </div>
+                <h4 th:text="${item.name}">Item Name</h4>
+                <p class="item-brand" th:text="${item.brand}">Brand</p>
+                <p class="item-desc" th:text="${item.description}">Description</p>
+                <div class="item-card-footer">
+                    <span class="item-price" th:text="${item.priceFormatted}">$0.00</span>
+                    <a th:href="@{/buy/{id}(id=${item.itemId})}" class="btn btn-primary btn-sm">Buy Now</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

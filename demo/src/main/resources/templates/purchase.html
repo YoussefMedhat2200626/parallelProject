@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Purchase — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 class="page-title">Confirm Purchase</h2>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="purchase-card">
+            <div class="purchase-item-info">
+                <h3 th:text="${item.name}">Item Name</h3>
+                <p><strong>Brand:</strong> <span th:text="${item.brand}">Brand</span></p>
+                <p><strong>Category:</strong> <span th:text="${item.category}">Category</span></p>
+                <p><strong>Seller:</strong> <span th:text="${sellerName}">Seller</span></p>
+                <p><strong>Price:</strong> <span class="item-price" th:text="${item.priceFormatted}">$0.00</span></p>
+                <p><strong>Available:</strong> <span th:text="${available}">0</span> units</p>
+                <p class="item-desc" th:text="${item.description}">Description</p>
+            </div>
+
+            <form th:action="@{/buy/{id}(id=${item.itemId})}" method="post" class="purchase-form">
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" th:max="${available}" required/>
+                </div>
+                <div class="form-group">
+                    <label for="otpCode">Verification Code (2FA)</label>
+                    <input type="text" id="otpCode" name="otpCode" placeholder="Enter 6-digit code" maxlength="6" required/>
+                    <small class="form-hint">Your verification code: <strong th:text="${otpCode}">000000</strong></small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Confirm Purchase</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
