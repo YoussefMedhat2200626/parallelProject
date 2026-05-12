@@ -62,6 +62,7 @@ public class UserService {
     }
 
     public Optional<User> findById(Long userId) {
+        if (userId == null) return Optional.empty();
         return userRepository.findById(userId);
     }
 
@@ -71,6 +72,7 @@ public class UserService {
 
     @Transactional
     public User updateProfile(Long userId, String fullName, String email) {
+        if (userId == null) throw new IllegalArgumentException("User ID must not be null");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
         user.setFullName(fullName);

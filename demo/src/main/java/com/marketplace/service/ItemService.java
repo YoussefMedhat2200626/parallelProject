@@ -74,6 +74,7 @@ public class ItemService {
     }
 
     public Optional<Item> findById(Long itemId) {
+        if (itemId == null) return Optional.empty();
         return itemRepository.findById(itemId);
     }
 

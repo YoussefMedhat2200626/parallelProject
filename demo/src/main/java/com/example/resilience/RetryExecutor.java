@@ -29,7 +29,10 @@ public class RetryExecutor {
                 sleep(backoff);
             }
         }
-        throw last;
+        if (last != null) {
+            throw last;
+        }
+        throw new IllegalStateException("Unexpected state in RetryExecutor");
     }
 
     private void sleep(Duration backoff) {
