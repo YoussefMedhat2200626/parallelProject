@@ -90,15 +90,15 @@ public class ItemService {
      */
     public List<Item> searchItems(String query, Long currentUserId) {
         if (query == null || query.isBlank()) {
-            return itemRepository.findAllActiveExcludingSeller(currentUserId);
+            return itemRepository.findAllActiveExcludingSeller(currentUserId, ItemStatus.ACTIVE);
         }
-        return itemRepository.searchItems(query.trim(), currentUserId);
+        return itemRepository.searchItems(query.trim(), currentUserId, ItemStatus.ACTIVE);
     }
 
     /**
      * Get all active items for browsing (excluding current user's items).
      */
     public List<Item> browseItems(Long currentUserId) {
-        return itemRepository.findAllActiveExcludingSeller(currentUserId);
+        return itemRepository.findAllActiveExcludingSeller(currentUserId, ItemStatus.ACTIVE);
     }
 }

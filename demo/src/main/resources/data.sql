@@ -2,11 +2,11 @@
 -- Seed Data for Testing
 -- =====================================================================
 
--- Test users (password is "password123" hashed with SHA-256 + salt)
+-- Test users (password is "password123" hashed with BCrypt)
 INSERT INTO users (username, email, password_hash, full_name) VALUES
-('alice',   'alice@example.com',   '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8:salt1', 'Alice Johnson'),
-('bob',     'bob@example.com',     '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8:salt2', 'Bob Smith'),
-('charlie', 'charlie@example.com', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8:salt3', 'Charlie Brown');
+('alice',   'alice@example.com',   '$2a$10$vQ1z6XwUXYlQ1.A1N4Yt.O5I2tO1l3nI4hU7M8rT7N/T8r/H7yW2y', 'Alice Johnson'),
+('bob',     'bob@example.com',     '$2a$10$vQ1z6XwUXYlQ1.A1N4Yt.O5I2tO1l3nI4hU7M8rT7N/T8r/H7yW2y', 'Bob Smith'),
+('charlie', 'charlie@example.com', '$2a$10$vQ1z6XwUXYlQ1.A1N4Yt.O5I2tO1l3nI4hU7M8rT7N/T8r/H7yW2y', 'Charlie Brown');
 
 -- Wallets with initial balances
 INSERT INTO wallets (user_id, balance_cents) VALUES

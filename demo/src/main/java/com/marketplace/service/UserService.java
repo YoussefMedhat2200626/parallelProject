@@ -10,7 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import jakarta.annotation.PostConstruct;
 
 /**
  * Handles user registration, authentication, and profile management.
@@ -27,6 +29,19 @@ public class UserService {
     public UserService(UserRepository userRepository, WalletRepository walletRepository) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
+    }
+
+    @PostConstruct
+    public void migrateLegacyPasswords() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (!user.getPasswordHash().startsWith("$")) {
+                LOG.info("Migrating legacy password for user: {}", user.getUsername());
+                // Legacy data.sql test users originally had 'password123'
+                user.setPasswordHash(passwordEncoder.encode("password123"));
+                userRepository.save(user);
+            }
+        }
     }
 
     /**
@@ -58,7 +73,14 @@ public class UserService {
      */
     public Optional<User> authenticate(String username, String password) {
         return userRepository.findByUsername(username)
-                .filter(user -> passwordEncoder.matches(password, user.getPasswordHash()));
+                .filter(user -> {
+                    try {
+                        return passwordEncoder.matches(password, user.getPasswordHash());
+                    } catch (IllegalArgumentException e) {
+                        LOG.warn("Invalid password hash format for user {}: {}", username, e.getMessage());
+                        return false;
+                    }
+                });
     }
 
     public Optional<User> findById(Long userId) {
