@@ -54,12 +54,6 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-        <!-- Session management -->
-        <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-core</artifactId>
-        </dependency>
-
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
