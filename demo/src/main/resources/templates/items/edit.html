@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Item — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link active">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 class="page-title">Edit Item</h2>
+        <div class="form-card">
+            <form th:action="@{/items/edit/{id}(id=${item.itemId})}" method="post" class="item-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Item Name</label>
+                        <input type="text" id="name" name="name" th:value="${item.name}" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand" name="brand" th:value="${item.brand}"/>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" name="category" th:value="${item.category}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price (USD)</label>
+                        <input type="number" id="price" name="price" step="0.01" th:value="${item.priceCents / 100.0}" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" th:value="${inventory != null ? inventory.quantity : 0}" min="0" required/>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" th:text="${item.description}"></textarea>
+                </div>
+                <div class="form-actions">
+                    <a th:href="@{/items}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

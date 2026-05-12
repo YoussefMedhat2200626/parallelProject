@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reports — Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link active">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+    <main class="container">
+        <h2 class="page-title">Transaction Reports</h2>
+
+        <form th:action="@{/reports}" method="get" class="report-filter">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">From</label>
+                    <input type="date" id="startDate" name="startDate" th:value="${startDate}"/>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">To</label>
+                    <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
+                </div>
+                <button type="submit" class="btn btn-primary" style="align-self:flex-end">Generate Report</button>
+            </div>
+        </form>
+
+        <div class="stats-grid" th:if="${report}">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Transactions</span>
+                    <span class="stat-value" th:text="${report.totalTransactions}">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Revenue</span>
+                    <span class="stat-value" th:text="${'$' + #numbers.formatDecimal(report.totalRevenueCents / 100.0, 1, 2)}">$0.00</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛍️</div>
+                <div class="stat-info">
+                    <span class="stat-label">Purchases</span>
+                    <span class="stat-value" th:text="${report.purchaseCount}">0</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="section">
+            <h3 class="section-title">My Transactions</h3>
+            <div th:if="${#lists.isEmpty(userTransactions)}" class="empty-state">
+                <p>No transactions in this period.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(userTransactions)}">
+                <thead>
+                    <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="txn : ${userTransactions}">
+                        <td th:text="${txn.transactionId}"></td>
+                        <td><span class="badge" th:text="${txn.type}"></span></td>
+                        <td th:text="${txn.totalFormatted}"></td>
+                        <td><span class="badge" th:classappend="${txn.status.name()}" th:text="${txn.status}"></span></td>
+                        <td th:text="${txn.referenceCode}"></td>
+                        <td th:text="${#temporals.format(txn.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>
