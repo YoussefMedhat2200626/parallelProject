@@ -1,7 +1,6 @@
 package com.marketplace.soap;
 
 import com.marketplace.entity.Transaction;
-import com.marketplace.entity.User;
 import com.marketplace.service.*;
 import com.marketplace.entity.OtpCode.OtpPurpose;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
