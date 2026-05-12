@@ -1,4 +1,7 @@
 spring:
+  sql:
+    init:
+      mode: never
   application:
     name: distributed-marketplace
 
