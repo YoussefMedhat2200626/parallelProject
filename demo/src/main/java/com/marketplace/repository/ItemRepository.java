@@ -18,14 +18,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByStatus(ItemStatus status);
 
-    @Query("SELECT i FROM Item i WHERE i.status = 'ACTIVE' AND i.sellerId <> :userId " +
+    @Query("SELECT i FROM Item i WHERE i.status = :status AND i.sellerId <> :userId " +
            "AND (LOWER(i.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
            "OR LOWER(i.brand) LIKE LOWER(CONCAT('%', :query, '%')) " +
            "OR LOWER(i.category) LIKE LOWER(CONCAT('%', :query, '%')))")
-    List<Item> searchItems(@Param("query") String query, @Param("userId") Long userId);
+    List<Item> searchItems(@Param("query") String query, @Param("userId") Long userId, @Param("status") ItemStatus status);
 
-    @Query("SELECT i FROM Item i WHERE i.status = 'ACTIVE' AND i.sellerId <> :userId")
-    List<Item> findAllActiveExcludingSeller(@Param("userId") Long userId);
+    @Query("SELECT i FROM Item i WHERE i.status = :status AND i.sellerId <> :userId")
+    List<Item> findAllActiveExcludingSeller(@Param("userId") Long userId, @Param("status") ItemStatus status);
 
     @Query("SELECT i FROM Item i WHERE i.itemId = :itemId AND i.sellerId = :sellerId")
     Optional<Item> findByItemIdAndSellerId(@Param("itemId") Long itemId, @Param("sellerId") Long sellerId);
