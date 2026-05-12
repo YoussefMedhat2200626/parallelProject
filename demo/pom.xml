@@ -54,6 +54,12 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
+        <!-- Email (SMTP) for sending OTP codes -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
