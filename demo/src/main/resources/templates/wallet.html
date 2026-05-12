@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Wallet — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><span class="logo-icon">🛒</span><span class="brand-text">Marketplace</span></div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link active">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 class="page-title">My Wallet</h2>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="wallet-balance-card">
+            <span class="wallet-label">Current Balance</span>
+            <span class="wallet-amount" th:text="${wallet.balanceFormatted}">$0.00</span>
+        </div>
+
+        <div class="deposit-section">
+            <h3>Deposit Funds</h3>
+            <form th:action="@{/wallet/deposit}" method="post" class="deposit-form">
+                <div class="form-group">
+                    <label for="amount">Amount (USD)</label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" placeholder="Enter amount" required/>
+                </div>
+                <button type="submit" class="btn btn-primary">💳 Deposit</button>
+            </form>
+        </div>
+
+        <section class="section">
+            <h3 class="section-title">Deposit History</h3>
+            <div th:if="${#lists.isEmpty(deposits)}" class="empty-state">
+                <p>No deposits yet.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(deposits)}">
+                <thead>
+                    <tr><th>Reference</th><th>Amount</th><th>Method</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dep : ${deposits}">
+                        <td th:text="${dep.referenceCode}"></td>
+                        <td th:text="${dep.amountFormatted}"></td>
+                        <td th:text="${dep.method}"></td>
+                        <td th:text="${#temporals.format(dep.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>

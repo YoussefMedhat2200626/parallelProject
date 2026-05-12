@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo-icon">🛒</span>
+            <span class="brand-text">Marketplace</span>
+        </div>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-link active">Dashboard</a>
+            <a th:href="@{/search}" class="nav-link">Browse</a>
+            <a th:href="@{/items}" class="nav-link">My Items</a>
+            <a th:href="@{/wallet}" class="nav-link">Wallet</a>
+            <a th:href="@{/reports}" class="nav-link">Reports</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-greeting" th:text="'Hi, ' + ${session.fullName}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <h2 class="page-title">Dashboard</h2>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-balance">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <span class="stat-label">Balance</span>
+                    <span class="stat-value" th:text="${wallet.balanceFormatted}">$0.00</span>
+                </div>
+            </div>
+            <div class="stat-card stat-items">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                    <span class="stat-label">Items Listed</span>
+                    <span class="stat-value" th:text="${itemCount}">0</span>
+                </div>
+            </div>
+            <div class="stat-card stat-purchases">
+                <div class="stat-icon">🛍️</div>
+                <div class="stat-info">
+                    <span class="stat-label">Purchases</span>
+                    <span class="stat-value" th:text="${purchaseCount}">0</span>
+                </div>
+            </div>
+            <div class="stat-card stat-sales">
+                <div class="stat-icon">💵</div>
+                <div class="stat-info">
+                    <span class="stat-label">Sales</span>
+                    <span class="stat-value" th:text="${saleCount}">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a th:href="@{/items/create}" class="btn btn-primary">➕ List New Item</a>
+            <a th:href="@{/wallet}" class="btn btn-secondary">💳 Deposit Funds</a>
+            <a th:href="@{/search}" class="btn btn-secondary">🔍 Browse Items</a>
+            <a th:href="@{/items/import}" class="btn btn-outline">📄 CSV Import</a>
+        </div>
+
+        <!-- My Items -->
+        <section class="section">
+            <h3 class="section-title">My Items for Sale</h3>
+            <div th:if="${#lists.isEmpty(myItems)}" class="empty-state">
+                <p>You haven't listed any items yet.</p>
+                <a th:href="@{/items/create}" class="btn btn-primary btn-sm">List your first item</a>
+            </div>
+            <div class="items-grid" th:unless="${#lists.isEmpty(myItems)}">
+                <div class="item-card" th:each="item : ${myItems}">
+                    <div class="item-card-header">
+                        <span class="item-status" th:classappend="${item.status.name()}" th:text="${item.status}">ACTIVE</span>
+                    </div>
+                    <h4 th:text="${item.name}">Item Name</h4>
+                    <p class="item-brand" th:text="${item.brand}">Brand</p>
+                    <p class="item-price" th:text="${item.priceFormatted}">$0.00</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Purchases -->
+        <section class="section">
+            <h3 class="section-title">Recent Purchases</h3>
+            <div th:if="${#lists.isEmpty(purchases)}" class="empty-state">
+                <p>No purchases yet.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(purchases)}">
+                <thead>
+                    <tr><th>Ref</th><th>Item</th><th>Qty</th><th>Total</th><th>Status</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="txn : ${purchases}">
+                        <td th:text="${txn.referenceCode}"></td>
+                        <td th:text="${txn.itemId}"></td>
+                        <td th:text="${txn.quantity}"></td>
+                        <td th:text="${txn.totalFormatted}"></td>
+                        <td><span class="badge" th:classappend="${txn.status.name()}" th:text="${txn.status}"></span></td>
+                        <td th:text="${#temporals.format(txn.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Recent Sales -->
+        <section class="section">
+            <h3 class="section-title">Recent Sales</h3>
+            <div th:if="${#lists.isEmpty(sales)}" class="empty-state">
+                <p>No sales yet.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(sales)}">
+                <thead>
+                    <tr><th>Ref</th><th>Buyer</th><th>Item</th><th>Qty</th><th>Total</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="txn : ${sales}">
+                        <td th:text="${txn.referenceCode}"></td>
+                        <td th:text="${txn.buyerId}"></td>
+                        <td th:text="${txn.itemId}"></td>
+                        <td th:text="${txn.quantity}"></td>
+                        <td th:text="${txn.totalFormatted}"></td>
+                        <td th:text="${#temporals.format(txn.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>

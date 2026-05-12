@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://marketplace.com/soap"
+           targetNamespace="http://marketplace.com/soap"
+           elementFormDefault="qualified">
+
+    <!-- Transaction Report -->
+    <xs:element name="getTransactionReportRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="startDate" type="xs:string"/>
+                <xs:element name="endDate" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getTransactionReportResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="totalCount" type="xs:int"/>
+                <xs:element name="transaction" type="tns:transactionDto" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="transactionDto">
+        <xs:sequence>
+            <xs:element name="transactionId" type="xs:long"/>
+            <xs:element name="buyerId" type="xs:long"/>
+            <xs:element name="sellerId" type="xs:long"/>
+            <xs:element name="itemId" type="xs:long"/>
+            <xs:element name="totalCents" type="xs:long"/>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="status" type="xs:string"/>
+            <xs:element name="createdAt" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Purchase Item -->
+    <xs:element name="purchaseItemRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="buyerId" type="xs:long"/>
+                <xs:element name="itemId" type="xs:long"/>
+                <xs:element name="quantity" type="xs:int"/>
+                <xs:element name="otpCode" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="purchaseItemResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="success" type="xs:boolean"/>
+                <xs:element name="message" type="xs:string"/>
+                <xs:element name="transactionId" type="xs:long" minOccurs="0"/>
+                <xs:element name="referenceCode" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Get User Info -->
+    <xs:element name="getUserInfoRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="userId" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getUserInfoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="found" type="xs:boolean"/>
+                <xs:element name="userId" type="xs:long" minOccurs="0"/>
+                <xs:element name="username" type="xs:string" minOccurs="0"/>
+                <xs:element name="fullName" type="xs:string" minOccurs="0"/>
+                <xs:element name="email" type="xs:string" minOccurs="0"/>
+                <xs:element name="balanceCents" type="xs:long" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

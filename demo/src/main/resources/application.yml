@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: distributed-marketplace
+
+  datasource:
+    url: jdbc:mariadb://localhost:3306/marketplace
+    username: marketplace_user
+    password: marketplace_pass
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.marketplace: DEBUG
+    org.hibernate.SQL: WARN
