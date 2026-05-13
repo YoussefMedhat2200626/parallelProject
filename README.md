@@ -19,11 +19,14 @@ cd "D:\2026 parallel\parallelProject\demo"
 # 2. Start the MariaDB database container
 docker compose up -d
 
-# 3. Initialize the database (first time only)
+# 3. Configure environment variables (Gmail SMTP)
+# Create a .env file with MAIL_USERNAME and MAIL_PASSWORD (App Password)
+
+# 4. Initialize the database (first time only)
 Get-Content "src\main\resources\schema.sql" | docker exec -i marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass marketplace
 Get-Content "src\main\resources\data.sql" | docker exec -i marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass marketplace
 
-# 4. Start the application
+# 5. Start the application
 mvn spring-boot:run
 ```
 
@@ -97,7 +100,10 @@ demo/
 │   │   ├── ItemRestController.java  #   GET /api/v1/items/search
 │   │   ├── AccountRestController.java # GET /api/v1/accounts/{id}
 │   │   └── InventoryRestController.java # GET/PUT /api/v1/inventory/{id}
-│   ├── soap/                        # SOAP web service endpoint
+│   ├── soap/                        # SOAP web service (Legacy Spring-WS)
+│   ├── socket/                      # PHASE 2: Raw Socket Implementations
+│   │   ├── RestSocketServer.java    #   Manual HTTP/JSON on Port 9090
+│   │   └── SoapSocketServer.java    #   Manual HTTP/XML on Port 9091
 │   ├── service/                     # Business logic layer
 │   ├── repository/                  # Spring Data JPA repositories
 │   └── entity/                      # JPA entity classes
@@ -124,21 +130,26 @@ demo/
 9. Transaction reports with date filtering
 10. REST + SOAP web services
 
-### REST APIs (3)
+### REST APIs (Phase 2 - Port 9090)
+Implemented using raw Java Sockets. Parsed manually from HTTP streams.
+
 | Endpoint | Description |
 |----------|-------------|
 | `GET /api/v1/items/search?q=` | Search items |
-| `GET /api/v1/accounts/{userId}` | Account info |
+| `GET /api/v1/accounts/{userId}` | Account info (Wallet + Activity) |
 | `GET/PUT /api/v1/inventory/{itemId}` | Inventory management |
 
-### SOAP Services (3)
+### SOAP Services (Phase 2 - Port 9091)
+Implemented using raw Java Sockets. XML envelopes parsed manually.
+
 | Operation | Description |
 |-----------|-------------|
 | `getTransactionReport` | Reports by date range |
-| `purchaseItem` | Purchase with 2FA |
+| `purchaseItem` | Purchase with 2FA OTP |
 | `getUserInfo` | User account info |
 
-WSDL: http://localhost:8080/ws/marketplace.wsdl
+WSDL: http://localhost:9091/?wsdl (Generated via raw socket)
+Legacy WSDL: http://localhost:8080/ws/marketplace.wsdl
 
 ### Bonus Features (3)
 - **2FA** — OTP codes for registration and purchases
