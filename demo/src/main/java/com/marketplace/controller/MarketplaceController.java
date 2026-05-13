@@ -66,13 +66,12 @@ public class MarketplaceController {
         String sellerName = userService.findById(item.getSellerId())
                 .map(u -> u.getFullName()).orElse("Unknown");
 
-        // Generate OTP for purchase verification
-        String otp = twoFactorService.generateOtp(userId, OtpPurpose.PURCHASE);
+        // Generate OTP for purchase verification (sent via email)
+        twoFactorService.generateOtp(userId, OtpPurpose.PURCHASE);
 
         model.addAttribute("item", item);
         model.addAttribute("available", available);
         model.addAttribute("sellerName", sellerName);
-        model.addAttribute("otpCode", otp);
         return "purchase";
     }
 

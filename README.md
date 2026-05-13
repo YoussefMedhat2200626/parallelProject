@@ -20,8 +20,8 @@ cd "D:\2026 parallel\parallelProject\demo"
 docker compose up -d
 
 # 3. Initialize the database (first time only)
-Get-Content "src\main\resources\schema.sql" | docker exec -i marketplace-db mariadb -u marketplace_user -pmarketplace_pass marketplace
-Get-Content "src\main\resources\data.sql" | docker exec -i marketplace-db mariadb -u marketplace_user -pmarketplace_pass marketplace
+Get-Content "src\main\resources\schema.sql" | docker exec -i marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass marketplace
+Get-Content "src\main\resources\data.sql" | docker exec -i marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass marketplace
 
 # 4. Start the application
 mvn spring-boot:run
@@ -71,10 +71,10 @@ docker compose down
 docker ps
 
 # Connect to MariaDB shell
-docker exec -it marketplace-db mariadb -u marketplace_user -pmarketplace_pass marketplace
+docker exec -it marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass marketplace
 
 # Verify tables exist
-docker exec marketplace-db mariadb -u marketplace_user -pmarketplace_pass -e "SHOW TABLES" marketplace
+docker exec marketplace-db-master mariadb -u marketplace_user -pmarketplace_pass -e "SHOW TABLES" marketplace
 ```
 
 ## Project Structure
@@ -159,5 +159,5 @@ All tables use MariaDB **native partitioning**:
 | `no POM in this directory` | Run from `demo/` folder: `cd "D:\2026 parallel\parallelProject\demo"` |
 | `Port 8080 already in use` | Kill old process: `netstat -ano \| findstr ":8080"` then `taskkill /F /PID <PID>` |
 | `Table doesn't exist` | Run the schema.sql init command (see Quick Start step 3) |
-| `Docker container conflict` | `docker rm -f marketplace-db` then `docker compose up -d` |
+| `Docker container conflict` | `docker rm -f marketplace-db-master marketplace-db-replica` then `docker compose up -d` |
 | `Cannot connect to database` | Make sure Docker Desktop is running and MariaDB container is up |

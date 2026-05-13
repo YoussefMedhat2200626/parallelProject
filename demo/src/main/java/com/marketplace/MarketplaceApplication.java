@@ -1,7 +1,9 @@
 package com.marketplace;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Distributed Online Marketplace Application
@@ -9,14 +11,21 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Spring 2026 Semester
  */
 @SpringBootApplication
-public class MarketplaceApplication {
-
-    public static void main(String[] args) {
-        io.github.cdimascio.dotenv.Dotenv dotenv = io.github.cdimascio.dotenv.Dotenv.configure()
+    @EnableAsync
+    public class MarketplaceApplication {
+    
+        public static void main(String[] args) {
+        // Load .env file and set system properties for Spring Boot
+        Dotenv dotenv = Dotenv.configure()
                 .ignoreIfMissing()
                 .load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
-        
+
+        dotenv.entries().forEach(entry -> {
+            if (System.getProperty(entry.getKey()) == null) {
+                System.setProperty(entry.getKey(), entry.getValue());
+            }
+        });
+
         SpringApplication.run(MarketplaceApplication.class, args);
     }
 }

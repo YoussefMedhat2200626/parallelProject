@@ -84,9 +84,9 @@ public class AuthController {
             // Register user
             User user = userService.register(username, email, password, fullName);
             // Generate 2FA OTP for account creation verification
-            String otp = twoFactorService.generateOtp(user.getUserId(), OtpPurpose.ACCOUNT_CREATE);
+            twoFactorService.generateOtpWithEmail(user.getUserId(), email, OtpPurpose.ACCOUNT_CREATE);
             session.setAttribute("pendingRegistrationUserId", user.getUserId());
-            redirectAttributes.addFlashAttribute("success", "Account created! Your verification code is: " + otp);
+            redirectAttributes.addFlashAttribute("success", "Account created! A verification code has been sent to your email.");
             redirectAttributes.addFlashAttribute("showOtp", true);
             redirectAttributes.addFlashAttribute("username", username);
             redirectAttributes.addFlashAttribute("email", email);
