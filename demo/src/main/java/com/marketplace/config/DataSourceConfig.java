@@ -43,6 +43,7 @@ public class DataSourceConfig {
     // 3. Routing DataSource 
 
     @Bean(name = "routingDataSource")
+    @SuppressWarnings("null")
     public DataSource routingDataSource(
             @Qualifier("masterDataSource")  DataSource master,
             @Qualifier("replicaDataSource") DataSource replica) {

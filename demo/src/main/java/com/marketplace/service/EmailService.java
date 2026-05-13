@@ -28,6 +28,7 @@ public class EmailService {
      * Send an OTP verification code to the user's email address.
      */
     @Async
+    @SuppressWarnings("null")
     public void sendOtpEmail(String toEmail, String otpCode, String purpose) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
