@@ -1,0 +1,20 @@
+[mysqld]
+#  Replication: REPLICA 
+server-id          = 2
+relay_log          = /var/log/mysql/relay-bin.log
+log_bin            = /var/log/mysql/mysql-bin.log   # enable on replica too (for chaining)
+binlog_format      = ROW
+read_only          = 1          # replica is READ-ONLY — all writes go to master
+super_read_only    = 1          # even SUPER users cannot write
+
+# Only replicate the marketplace database
+replicate_do_db    = marketplace
+
+#  Character set 
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_unicode_ci
+
+#  Replica-specific settings 
+relay_log_purge          = 1
+slave_skip_errors        = 0    # never silently skip errors in production
+log_slave_updates        = 1    # replica also logs received changes (useful for failover)
