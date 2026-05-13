@@ -1,41 +1,66 @@
 spring:
-  sql:
-    init:
-      mode: never
   application:
-    name: distributed-marketplace
+    name: marketplace
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/marketplace
+    jdbc-url: jdbc:mariadb://localhost:3306/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
     username: marketplace_user
     password: marketplace_pass
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      pool-name:            MasterPool
+      maximum-pool-size:    10
+      minimum-idle:         2
+      connection-timeout:   30000
+      idle-timeout:         600000
+      max-lifetime:         1800000
+
+  datasource-replica:
+    jdbc-url: jdbc:mariadb://localhost:3307/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
+    username: marketplace_user
+    password: marketplace_pass
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      pool-name:            ReplicaPool
+      maximum-pool-size:    10
+      minimum-idle:         2
+      connection-timeout:   30000
+      idle-timeout:         600000
+      max-lifetime:         1800000
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate      
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true
+        jdbc:
+          batch_size:          25
+        order_inserts:         true
+        order_updates:         true
 
   thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
     cache: false
+    encoding: UTF-8
 
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
+  mail:
+    host:     smtp.gmail.com
+    port:     587
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail.smtp.auth:            true
+      mail.smtp.starttls.enable: true
+
 
 server:
   port: 8080
-
+  servlet:
+    context-path: /
 
 logging:
   level:
     com.marketplace: DEBUG
-    org.hibernate.SQL: WARN
+    org.springframework.jdbc: INFO
