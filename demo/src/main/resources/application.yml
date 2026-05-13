@@ -3,7 +3,7 @@ spring:
     name: marketplace
 
   datasource:
-    url:      jdbc:mariadb://marketplace-db-master:3306/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
+    jdbc-url: jdbc:mariadb://localhost:3306/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
     username: marketplace_user
     password: marketplace_pass
     driver-class-name: org.mariadb.jdbc.Driver
@@ -16,7 +16,7 @@ spring:
       max-lifetime:         1800000
 
   datasource-replica:
-    url:      jdbc:mariadb://marketplace-db-replica:3306/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
+    jdbc-url: jdbc:mariadb://localhost:3307/marketplace?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC
     username: marketplace_user
     password: marketplace_pass
     driver-class-name: org.mariadb.jdbc.Driver
