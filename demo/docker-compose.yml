@@ -1,24 +1,66 @@
 version: '3.8'
 
 services:
-  mariadb:
+  marketplace-db-master:
     image: mariadb:11.4
-    container_name: marketplace-db
+    container_name: marketplace-db-master
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: marketplace
-      MYSQL_USER: marketplace_user
-      MYSQL_PASSWORD: marketplace_pass
+      MYSQL_DATABASE:      marketplace
+      MYSQL_USER:          marketplace_user
+      MYSQL_PASSWORD:      marketplace_pass
     ports:
       - "3306:3306"
     volumes:
-      - mariadb_data:/var/lib/mysql
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+      - mariadb_master_data:/var/lib/mysql
+      - ./replication/master.cnf:/etc/mysql/conf.d/master.cnf:ro
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+      - ./replication/init-master.sql:/docker-entrypoint-initdb.d/03-replication-user.sql:ro
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - marketplace-net
+
+  marketplace-db-replica:
+    image: mariadb:11.4
+    container_name: marketplace-db-replica
+    restart: unless-stopped
+    depends_on:
+      marketplace-db-master:
+        condition: service_healthy
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3306"   
+    volumes:
+      - mariadb_replica_data:/var/lib/mysql
+      - ./replication/replica.cnf:/etc/mysql/conf.d/replica.cnf:ro
+      - ./replication/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - marketplace-net
 
 volumes:
-  mariadb_data:
+  mariadb_master_data:
+  mariadb_replica_data:
+
+networks:
+  marketplace-net:
+    driver: bridge

@@ -79,7 +79,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Dotenv for loading .env files -->
+        <!-- Dotenv for environment variables -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>

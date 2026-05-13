@@ -11,15 +11,15 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * Spring 2026 Semester
  */
 @SpringBootApplication
-@EnableAsync
-public class MarketplaceApplication {
-
-    public static void main(String[] args) {
+    @EnableAsync
+    public class MarketplaceApplication {
+    
+        public static void main(String[] args) {
         // Load .env file and set system properties for Spring Boot
         Dotenv dotenv = Dotenv.configure()
                 .ignoreIfMissing()
                 .load();
-        
+
         dotenv.entries().forEach(entry -> {
             if (System.getProperty(entry.getKey()) == null) {
                 System.setProperty(entry.getKey(), entry.getValue());

@@ -1,0 +1,19 @@
+[mysqld]
+#  Replication: MASTER 
+server-id          = 1
+log_bin            = /var/log/mysql/mysql-bin.log
+binlog_format      = ROW          # ROW is safest for partitioned tables
+binlog_row_image   = FULL
+expire_logs_days   = 7
+max_binlog_size    = 100M
+
+# Databases to replicate 
+binlog_do_db       = marketplace
+
+#  Character set 
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_unicode_ci
+
+#  InnoDB tuning 
+innodb_flush_log_at_trx_commit = 1
+sync_binlog                    = 1
