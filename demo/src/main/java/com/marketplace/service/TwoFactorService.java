@@ -2,7 +2,6 @@ package com.marketplace.service;
 
 import com.marketplace.entity.OtpCode;
 import com.marketplace.entity.OtpCode.OtpPurpose;
-import com.marketplace.entity.User;
 import com.marketplace.repository.OtpRepository;
 import com.marketplace.repository.UserRepository;
 import org.slf4j.Logger;
@@ -52,7 +51,8 @@ public class TwoFactorService {
         LOG.info("2FA OTP generated for user {} ({}): expires at {}", userId, purpose, expiresAt);
 
         // Send OTP via email
-        userRepository.findById(userId).ifPresent(user -> {
+        if (userId != null) {
+            userRepository.findById(userId).ifPresent(user -> {
             String email = user.getEmail();
             if (email != null && !email.isBlank()) {
                 emailService.sendOtpEmail(email, code, purpose.name());
@@ -60,7 +60,8 @@ public class TwoFactorService {
             } else {
                 LOG.warn("No email address found for user {}, OTP not sent via email", userId);
             }
-        });
+            });
+        }
 
         return code;
     }
