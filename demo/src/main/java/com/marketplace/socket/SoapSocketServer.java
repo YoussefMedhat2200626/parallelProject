@@ -1,14 +1,7 @@
 package com.marketplace.socket;
 
-import com.marketplace.entity.OtpCode;
-import com.marketplace.entity.OtpCode.OtpPurpose;
-import com.marketplace.entity.Transaction;
-import com.marketplace.entity.User;
-import com.marketplace.service.ReportService;
-import com.marketplace.service.TransactionService;
-import com.marketplace.service.TwoFactorService;
-import com.marketplace.service.UserService;
-import com.marketplace.service.WalletService;
+import com.marketplace.entity.*;
+import com.marketplace.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -214,7 +207,7 @@ public class SoapSocketServer {
             String otpCode = extractXmlValue(xmlBody, "otpCode");
 
             // Validate OTP
-            boolean otpValid = twoFactorService.validateOtp(buyerId, otpCode, OtpPurpose.PURCHASE);
+            boolean otpValid = twoFactorService.validateOtp(buyerId, otpCode, OtpCode.OtpPurpose.PURCHASE);
             if (!otpValid) {
                 return buildOperationResponse("purchaseItemResponse", false,
                         "Invalid or expired OTP code", null, null);
