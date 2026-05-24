@@ -31,7 +31,7 @@ public class ReportController {
         LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusMonths(1);
         LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
 
-        Map<String, Object> report = reportService.generateSummaryReport(start, end);
+        Map<String, Object> report = reportService.generateSummaryReport(userId, start, end);
         List<Transaction> userTxns = reportService.getUserTransactionsByDateRange(userId, start, end);
 
         model.addAttribute("report", report);

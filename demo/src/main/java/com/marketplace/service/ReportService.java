@@ -32,18 +32,30 @@ public class ReportService {
         return transactionRepository.findByUserIdAndDateRange(userId, start, end);
     }
 
-    public Map<String, Object> generateSummaryReport(LocalDate startDate, LocalDate endDate) {
+    public Map<String, Object> generateSummaryReport(Long userId, LocalDate startDate, LocalDate endDate) {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
         Map<String, Object> report = new HashMap<>();
         report.put("startDate", startDate);
         report.put("endDate", endDate);
-        report.put("totalTransactions", transactionRepository.countByDateRange(start, end));
-        report.put("totalRevenueCents", transactionRepository.sumCompletedPurchases(start, end));
-        List<Transaction> transactions = transactionRepository.findByDateRange(start, end);
+
+        // Scope all counts to the current user's transactions only
+        List<Transaction> transactions = transactionRepository.findByUserIdAndDateRange(userId, start, end);
         report.put("transactions", transactions);
-        long purchases = transactions.stream().filter(t -> t.getType() == Transaction.TransactionType.PURCHASE).count();
+        report.put("totalTransactions", (long) transactions.size());
+
+        long purchases = transactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE && t.getBuyerId().equals(userId))
+                .count();
         report.put("purchaseCount", purchases);
+
+        long totalRevenueCents = transactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE
+                        && t.getStatus() == Transaction.TransactionStatus.COMPLETED)
+                .mapToLong(t -> t.getTotalCents() != null ? t.getTotalCents() : 0L)
+                .sum();
+        report.put("totalRevenueCents", totalRevenueCents);
+
         return report;
     }
 
