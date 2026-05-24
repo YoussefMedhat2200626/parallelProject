@@ -107,4 +107,15 @@ public class TwoFactorService {
         LOG.warn("Invalid or expired OTP for user {} ({})", userId, purpose);
         return false;
     }
+
+    /**
+     * Checks if a user is verified.
+     * A user is verified if they have successfully used an ACCOUNT_CREATE OTP,
+     * or if they never had one generated (e.g. legacy or manual accounts).
+     */
+    public boolean isUserVerified(Long userId) {
+        boolean hasAny = otpRepository.existsByUserIdAndPurpose(userId, OtpPurpose.ACCOUNT_CREATE);
+        boolean hasVerified = otpRepository.existsByUserIdAndPurposeAndUsedTrue(userId, OtpPurpose.ACCOUNT_CREATE);
+        return !hasAny || hasVerified;
+    }
 }

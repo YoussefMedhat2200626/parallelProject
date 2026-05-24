@@ -16,4 +16,7 @@ public interface OtpRepository extends JpaRepository<OtpCode, Long> {
     Optional<OtpCode> findValidOtp(@Param("userId") Long userId,
                                     @Param("code") String code,
                                     @Param("purpose") OtpPurpose purpose);
+
+    boolean existsByUserIdAndPurpose(Long userId, OtpPurpose purpose);
+    boolean existsByUserIdAndPurposeAndUsedTrue(Long userId, OtpPurpose purpose);
 }

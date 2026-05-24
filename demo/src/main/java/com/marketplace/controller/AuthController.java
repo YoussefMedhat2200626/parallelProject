@@ -41,6 +41,21 @@ public class AuthController {
         Optional<User> userOpt = userService.authenticate(username, password);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
+
+            // BLOCK: account exists but OTP never verified
+            if (!twoFactorService.isUserVerified(user.getUserId())) {
+                // Re-seed the pending state so they can still verify
+                session.setAttribute("pendingRegistrationUserId", user.getUserId());
+                // Re-send OTP so it isn't expired
+                twoFactorService.generateOtpWithEmail(user.getUserId(), user.getEmail(), OtpPurpose.ACCOUNT_CREATE);
+                redirectAttributes.addFlashAttribute("error", "Please verify your email first. A new code has been sent.");
+                redirectAttributes.addFlashAttribute("showOtp", true);
+                redirectAttributes.addFlashAttribute("username", username);
+                redirectAttributes.addFlashAttribute("email", user.getEmail());
+                redirectAttributes.addFlashAttribute("fullName", user.getFullName());
+                return "redirect:/register";
+            }
+
             session.setAttribute("userId", user.getUserId());
             session.setAttribute("username", user.getUsername());
             session.setAttribute("fullName", user.getFullName());
