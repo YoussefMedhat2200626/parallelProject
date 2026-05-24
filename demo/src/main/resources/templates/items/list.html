@@ -50,6 +50,7 @@
                 <h4 th:text="${item.name}">Item Name</h4>
                 <p class="item-brand" th:text="${item.brand}">Brand</p>
                 <p class="item-price" th:text="${item.priceFormatted}">$0.00</p>
+                <p class="item-quantity">Qty: <span th:text="${inventoryMap != null and inventoryMap[item.itemId] != null ? inventoryMap[item.itemId] : 0}"></span></p>
                 <div class="item-card-actions">
                     <a th:href="@{/items/edit/{id}(id=${item.itemId})}" class="btn btn-sm btn-secondary">Edit</a>
                     <form th:action="@{/items/delete/{id}(id=${item.itemId})}" method="post" style="display:inline">

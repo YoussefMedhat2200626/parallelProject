@@ -1,17 +1,19 @@
 package com.marketplace.service;
 
-import com.marketplace.entity.Inventory;
-import com.marketplace.entity.Item;
-import com.marketplace.entity.Item.ItemStatus;
-import com.marketplace.repository.InventoryRepository;
-import com.marketplace.repository.ItemRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.marketplace.entity.Inventory;
+import com.marketplace.entity.Item;
+import com.marketplace.entity.Item.ItemStatus;
+import com.marketplace.repository.InventoryRepository;
+import com.marketplace.repository.ItemRepository;
 
 /**
  * Manages marketplace items — create, edit, remove, search.
@@ -35,6 +37,8 @@ public class ItemService {
     @Transactional
     public Item createItem(Long sellerId, String name, String description, String brand,
                            String category, Long priceCents, int initialQuantity) {
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Item name is required");
+        if (priceCents <= 0) throw new IllegalArgumentException("Price must be greater than zero");
         Item item = new Item(sellerId, name, description, brand, category, priceCents);
         item = itemRepository.save(item);
 
@@ -51,13 +55,20 @@ public class ItemService {
     @Transactional
     public Item updateItem(Long itemId, Long sellerId, String name, String description,
                            String brand, String category, Long priceCents) {
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Item name is required");
+        if (priceCents <= 0) throw new IllegalArgumentException("Price must be greater than zero");
+
         Item item = itemRepository.findByItemIdAndSellerId(itemId, sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found or unauthorized"));
+        if (item.getStatus() == ItemStatus.SOLD) {
+          throw new IllegalArgumentException("Cannot edit a sold item");
+        }
         item.setName(name);
         item.setDescription(description);
         item.setBrand(brand);
         item.setCategory(category);
         item.setPriceCents(priceCents);
+        item.setUpdatedAt(LocalDateTime.now());
         return itemRepository.save(item);
     }
 
@@ -70,6 +81,9 @@ public class ItemService {
                 .orElseThrow(() -> new IllegalArgumentException("Item not found or unauthorized"));
         item.setStatus(ItemStatus.REMOVED);
         itemRepository.save(item);
+        inventoryRepository.findByItemId(itemId).ifPresent(inv -> {
+        inv.setReserved(0);
+        inventoryRepository.save(inv);});
         LOG.info("Item removed: {} (id={})", item.getName(), itemId);
     }
 
@@ -101,4 +115,15 @@ public class ItemService {
     public List<Item> browseItems(Long currentUserId) {
         return itemRepository.findAllActiveExcludingSeller(currentUserId, ItemStatus.ACTIVE);
     }
+
+    /*
+        * Save item - used for status updates (e.g. marking as SOLD)
+    */
+
+    public Item saveItem(Item item) {
+    return itemRepository.save(item);
+    }
+
+    
+
 }

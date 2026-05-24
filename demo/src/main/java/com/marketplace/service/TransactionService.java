@@ -88,6 +88,7 @@ public class TransactionService {
         int remaining = inventoryService.getAvailableQuantity(itemId);
         if (remaining <= 0) {
             item.setStatus(Item.ItemStatus.SOLD);
+            itemService.saveItem(item);
         }
 
         // 7. Record transaction

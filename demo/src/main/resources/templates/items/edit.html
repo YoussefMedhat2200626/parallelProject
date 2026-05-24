@@ -26,6 +26,7 @@
 
     <main class="container">
         <h2 class="page-title">Edit Item</h2>
+        <div th:if="${soldWarning}" class="alert alert-error" th:text="${soldWarning}"></div>
         <div class="form-card">
             <form th:action="@{/items/edit/{id}(id=${item.itemId})}" method="post" class="item-form">
                 <div class="form-row">

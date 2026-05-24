@@ -1,20 +1,27 @@
 package com.marketplace.controller;
 
-import com.marketplace.entity.Item;
-import com.marketplace.entity.Inventory;
-import com.marketplace.service.ItemService;
-import com.marketplace.service.InventoryService;
-import com.marketplace.service.CsvImportService;
-import com.marketplace.service.CsvImportService.CsvImportResult;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Optional;
+import com.marketplace.entity.Inventory;
+import com.marketplace.entity.Item;
+import com.marketplace.service.CsvImportService;
+import com.marketplace.service.CsvImportService.CsvImportResult;
+import com.marketplace.service.InventoryService;
+import com.marketplace.service.ItemService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/items")
@@ -37,7 +44,13 @@ public class ItemController {
         if (userId == null) return "redirect:/login";
         List<Item> items = itemService.getSellerItems(userId);
         model.addAttribute("items", items);
-        return "items/list";
+        Map<Long, Integer> inventoryMap = new java.util.HashMap<>();
+        for (Item item : items) {
+        inventoryService.getByItemId(item.getItemId())
+            .ifPresent(inv -> inventoryMap.put(item.getItemId(), inv.getQuantity()));
+    }
+    model.addAttribute("inventoryMap", inventoryMap);
+    return "items/list";
     }
 
     @GetMapping("/create")
@@ -72,10 +85,13 @@ public class ItemController {
             return "redirect:/items";
         }
         model.addAttribute("item", item.get());
+        if (item.get().getStatus() == com.marketplace.entity.Item.ItemStatus.SOLD) {
+            model.addAttribute("soldWarning", "This item has been sold and cannot be edited.");
+        }
         Optional<Inventory> inv = inventoryService.getByItemId(id);
         inv.ifPresent(inventory -> model.addAttribute("inventory", inventory));
         return "items/edit";
-    }
+        }
 
     @PostMapping("/edit/{id}")
     public String editItem(@PathVariable Long id, @RequestParam String name,
@@ -86,10 +102,14 @@ public class ItemController {
         Long userId = getSessionUserId(session);
         if (userId == null) return "redirect:/login";
         try {
-            long priceCents = Math.round(price * 100);
-            itemService.updateItem(id, userId, name, description, brand, category, priceCents);
+        long priceCents = Math.round(price * 100);
+        itemService.updateItem(id, userId, name, description, brand, category, priceCents);
+        if (inventoryService.getByItemId(id).isPresent()) {
             inventoryService.updateQuantity(id, quantity);
             redirectAttributes.addFlashAttribute("success", "Item updated!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Inventory record not found");
+        }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
