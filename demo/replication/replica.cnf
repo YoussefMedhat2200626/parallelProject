@@ -5,7 +5,6 @@ relay_log          = /var/log/mysql/relay-bin.log
 log_bin            = /var/log/mysql/mysql-bin.log   # enable on replica too (for chaining)
 binlog_format      = ROW
 read_only          = 1          # replica is READ-ONLY — all writes go to master
-super_read_only    = 1          # even SUPER users cannot write
 
 # Only replicate the marketplace database
 replicate_do_db    = marketplace
