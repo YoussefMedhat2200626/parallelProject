@@ -124,7 +124,8 @@ This project implements a **Distributed Online Marketplace System** that demonst
 7. Support both REST and SOAP web service interfaces, implemented at the raw socket level, to demonstrate protocol-level understanding.
 8. Enable CSV-based bulk product import for operational efficiency.
 9. Provide an External Store API interface for third-party integrations.
-10. Implement comprehensive transaction reporting with date-range filtering.
+10. Implement comprehensive transaction reporting with date-range filtering and user-scoped summary statistics.
+11. Integrate an AI Smart Search feature powered by Google Gemini, implemented as a standalone Java socket-based microservice (port 9092), enabling natural language product discovery with relevance scoring and AI-generated search summaries.
 
 ### 2.1.4 Key Differentiators of This Implementation
 
@@ -1986,13 +1987,28 @@ The Dashboard displays:
 
 ### 8.3.3 Searching and Purchasing Items
 
-1. Click "Search Marketplace" or navigate to `/search`.
-2. Enter a search term (e.g., "Samsung", "Nike", "Electronics") or leave blank to browse all.
-3. Click on "Buy" next to any item.
-4. The purchase page shows item details, seller information, and available quantity.
-5. An OTP verification code is automatically sent to your registered email.
-6. Enter the desired quantity and the OTP code.
-7. Click "Purchase". Upon success, you are redirected to the Dashboard with a confirmation message.
+1. Click **"Search Marketplace"** or navigate to `/search`.
+2. Enter a search term (e.g., `Samsung`, `Nike`, `Electronics`) or leave blank to browse all.
+3. Click **"Search"** to run a standard keyword search across item name, brand, and category fields.
+
+**AI Smart Search (optional):**
+
+4. Enable the **"Use AI Smart Search ✨"** toggle on the search page to activate Gemini-powered semantic search.
+5. With AI Smart Search enabled, you may type natural language queries such as:
+   - *"something nice for a birthday under $500"*
+   - *"cheap electronics for students"*
+   - *"best noise-cancelling headphones"*
+6. The AI service ranks results by semantic relevance, assigns each item a **relevance score**, and displays a concise **search summary** explaining what the AI understood from your query.
+7. Each result card shows an AI reasoning note explaining why the item matched your query.
+8. If the AI service is unavailable (port 9092 not running), the system gracefully falls back to standard keyword search.
+
+**Purchasing an Item:**
+
+9. Click **"Buy"** next to any item.
+10. The purchase page shows item details, seller information, and available quantity.
+11. An OTP verification code is automatically sent to your registered email.
+12. Enter the desired quantity and the OTP code.
+13. Click **"Purchase"**. Upon success, you are redirected to the Dashboard with a confirmation message.
 
 ### 8.3.4 Managing Your Items
 
@@ -2011,10 +2027,29 @@ The Dashboard displays:
 
 ### 8.3.6 Viewing Transaction Reports
 
-1. Click "Reports" or navigate to `/reports`.
-2. Optionally set a date range (start date and end date).
-3. Click "Generate Report" to view all transactions within the specified period.
-4. The report shows: transaction ID, buyer, seller, item, amount, type, status, date, and reference code.
+1. Click **"Reports"** or navigate to `/reports`.
+2. Optionally set a **date range** (start date and end date) using the date picker inputs.
+3. Click **"Generate Report"** to view your transactions within the specified period.
+
+**Summary Cards:**
+
+The report page displays three user-scoped summary cards:
+
+| Card | Description |
+|---|---|
+| **Total Transactions** | Total number of transactions (purchases and sales) the logged-in user was involved in during the date range. |
+| **Total Revenue** | Total amount **earned** by the user as a **seller** (money received from completed sales). Purchases made as a buyer do not count toward revenue. |
+| **Purchases** | Number of purchase transactions where the user was the buyer. |
+
+> **Note:** All statistics are computed from the user's own transaction list only. They will always match exactly what is displayed in the "My Transactions" table below.
+
+**Transaction Table columns:**
+- **ID** — Unique transaction identifier
+- **Type** — `PURCHASE` (only type currently supported)
+- **Amount** — Total transaction value in dollars
+- **Status** — `COMPLETED`, `PENDING`, or `FAILED`
+- **Reference** — Unique reference code (e.g., `TXN-B7ECC9EE`) for audit and dispute purposes
+- **Date** — Timestamp of when the transaction was recorded
 
 ---
 
