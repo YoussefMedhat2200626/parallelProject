@@ -54,18 +54,14 @@ public class SmartSearchHandler {
             return "{\"error\":\"Missing or empty field: 'items'\"}";
         }
 
-        System.out.println("[Smart Search] Query: \"" + query + "\"");
-
         // 2) Build the AI prompt
         String prompt = buildSearchPrompt(query, itemsArray);
 
         // 3) Call Gemini AI
-        System.out.println("[Smart Search] Calling Gemini AI...");
         String aiResponse;
         try {
             aiResponse = geminiClient.generateContent(prompt);
         } catch (IOException e) {
-            System.err.println("[Smart Search] Gemini API failed: " + e.getMessage());
             // Fallback: return items as-is with a warning
             return "{\"warning\":\"AI search unavailable, returning unranked results\","
                  + "\"results\":" + itemsArray + "}";

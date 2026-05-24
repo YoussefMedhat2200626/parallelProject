@@ -7,22 +7,21 @@ REM ═════════════════════════�
 set PORT=%1
 if "%PORT%"=="" set PORT=9092
 
-REM Kill any existing process on the port
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PORT% " 2^>nul') do (
-    echo [AI] Freeing port %PORT% (PID %%a)...
-    taskkill /PID %%a /F >nul 2>&1
-)
+REM Skip auto port kill to avoid batch parse errors
+echo [AI] Using port %PORT%...
 
 REM Compile if needed
-if not exist "ai-service\out\ai\AIServer.class" (
-    echo [AI] Compiling AI Service...
-    javac -d ai-service\out -encoding UTF-8 ai-service\src\ai\*.java
-    if %ERRORLEVEL% NEQ 0 (
-        echo [AI] Compilation FAILED!
-        pause
-        exit /b 1
-    )
+set "AI_DIR=..\AI Service"
+if exist "%AI_DIR%\out\ai\AIServer.class" goto run_server
+
+echo [AI] Compiling AI Service...
+javac -d "%AI_DIR%\out" -encoding UTF-8 "%AI_DIR%\src\ai\*.java"
+if errorlevel 1 (
+    echo [AI] Compilation FAILED!
+    pause
+    exit /b 1
 )
 
+:run_server
 echo [AI] Starting AI Service on port %PORT%...
-java -cp ai-service\out ai.AIServer %PORT%
+java -cp "%AI_DIR%\out" ai.AIServer %PORT%

@@ -99,7 +99,7 @@ public class AIRequestHandler implements Runnable {
         } finally {
             try {
                 clientSocket.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // Ignore close errors
             }
         }
