@@ -41,7 +41,8 @@ public class ReportController {
                 .count();
         long revenueCents = userTxns.stream()
                 .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE
-                        && t.getStatus() == Transaction.TransactionStatus.COMPLETED)
+                        && t.getStatus() == Transaction.TransactionStatus.COMPLETED
+                        && t.getSellerId().equals(userId))
                 .mapToLong(t -> t.getTotalCents() != null ? t.getTotalCents() : 0L)
                 .sum();
 
