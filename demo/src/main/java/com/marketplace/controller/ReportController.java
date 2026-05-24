@@ -37,12 +37,11 @@ public class ReportController {
         // Compute stats directly from the user's own transaction list so cards always match the table
         long totalTxns = userTxns.size();
         long purchaseCount = userTxns.stream()
-                .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE && t.getBuyerId().equals(userId))
+                .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE)
                 .count();
         long revenueCents = userTxns.stream()
                 .filter(t -> t.getType() == Transaction.TransactionType.PURCHASE
-                        && t.getStatus() == Transaction.TransactionStatus.COMPLETED
-                        && t.getBuyerId().equals(userId))
+                        && t.getStatus() == Transaction.TransactionStatus.COMPLETED)
                 .mapToLong(t -> t.getTotalCents() != null ? t.getTotalCents() : 0L)
                 .sum();
 
