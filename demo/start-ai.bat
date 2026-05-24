@@ -12,7 +12,6 @@ echo [AI] Using port %PORT%...
 
 REM Compile if needed
 set "AI_DIR=..\AI Service"
-if exist "%AI_DIR%\out\ai\AIServer.class" goto run_server
 
 echo [AI] Compiling AI Service...
 javac -d "%AI_DIR%\out" -encoding UTF-8 "%AI_DIR%\src\ai\*.java"
@@ -22,6 +21,5 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:run_server
 echo [AI] Starting AI Service on port %PORT%...
 java -cp "%AI_DIR%\out" ai.AIServer %PORT%
