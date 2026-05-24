@@ -36,6 +36,7 @@
                     <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
                 </div>
                 <button type="submit" class="btn btn-primary" style="align-self:flex-end">Generate Report</button>
+                <a th:href="@{/reports/export(startDate=${startDate},endDate=${endDate})}" class="btn btn-outline" style="align-self:flex-end; margin-left:10px;">Export CSV</a>
             </div>
         </form>
 

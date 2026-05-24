@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.io.PrintWriter;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/reports")
@@ -55,5 +58,37 @@ public class ReportController {
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
         return "reports";
+    }
+    @GetMapping("/export")
+    public void exportToCsv(@RequestParam(required = false) String startDate,
+                          @RequestParam(required = false) String endDate,
+                          HttpSession session, HttpServletResponse response) throws IOException {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusMonths(1);
+        LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
+
+        List<Transaction> userTxns = reportService.getUserTransactionsByDateRange(userId, start, end);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"transactions_report_" + start + "_to_" + end + ".csv\"");
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.println("ID,Type,Amount,Status,Reference,Date");
+            for (Transaction txn : userTxns) {
+                writer.println(String.format("%d,%s,%s,%s,%s,%s",
+                        txn.getTransactionId(),
+                        txn.getType(),
+                        txn.getTotalFormatted().replace(",", ""),
+                        txn.getStatus(),
+                        txn.getReferenceCode() != null ? txn.getReferenceCode() : "",
+                        txn.getCreatedAt()
+                ));
+            }
+        }
     }
 }
