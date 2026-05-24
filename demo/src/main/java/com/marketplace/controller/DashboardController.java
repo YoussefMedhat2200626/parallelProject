@@ -1,13 +1,25 @@
 package com.marketplace.controller;
 
-import com.marketplace.entity.*;
-import com.marketplace.service.*;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
+import com.marketplace.entity.Inventory;
+import com.marketplace.entity.Item;
+import com.marketplace.entity.Transaction;
+import com.marketplace.entity.User;
+import com.marketplace.entity.Wallet;
+import com.marketplace.service.InventoryService;
+import com.marketplace.service.ItemService;
+import com.marketplace.service.TransactionService;
+import com.marketplace.service.UserService;
+import com.marketplace.service.WalletService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -46,6 +58,22 @@ public class DashboardController {
         model.addAttribute("myItems", myItems);
         model.addAttribute("purchases", purchases);
         model.addAttribute("sales", sales);
+        Map<Long, String> itemNameMap = new java.util.HashMap<>();
+        for (Transaction txn : purchases) {    
+        itemService.findById(txn.getItemId())
+        .ifPresent(item -> itemNameMap.put(txn.getItemId(), item.getName()));
+        }
+        for (Transaction txn : sales) {
+            itemService.findById(txn.getItemId())
+            .ifPresent(item -> itemNameMap.put(txn.getItemId(), item.getName()));
+        }
+        model.addAttribute("itemNameMap", itemNameMap);
+        Map<Long, String> buyerNameMap = new java.util.HashMap<>();
+        for (Transaction txn : sales) {
+            userService.findById(txn.getBuyerId())
+            .ifPresent(user2 -> buyerNameMap.put(txn.getBuyerId(), user2.getFullName()));
+        }
+        model.addAttribute("buyerNameMap", buyerNameMap);
         model.addAttribute("inventory", inventory);
         model.addAttribute("itemCount", myItems.size());
         model.addAttribute("purchaseCount", purchases.size());

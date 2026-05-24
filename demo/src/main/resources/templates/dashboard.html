@@ -104,7 +104,7 @@
                 <tbody>
                     <tr th:each="txn : ${purchases}">
                         <td th:text="${txn.referenceCode}"></td>
-                        <td th:text="${txn.itemId}"></td>
+                        <td th:text="${itemNameMap[txn.itemId]}"></td>
                         <td th:text="${txn.quantity}"></td>
                         <td th:text="${txn.totalFormatted}"></td>
                         <td><span class="badge" th:classappend="${txn.status.name()}" th:text="${txn.status}"></span></td>
@@ -127,8 +127,8 @@
                 <tbody>
                     <tr th:each="txn : ${sales}">
                         <td th:text="${txn.referenceCode}"></td>
-                        <td th:text="${txn.buyerId}"></td>
-                        <td th:text="${txn.itemId}"></td>
+                        <td th:text="${buyerNameMap[txn.buyerId]}"></td>
+                        <td th:text="${itemNameMap[txn.itemId]}"></td>
                         <td th:text="${txn.quantity}"></td>
                         <td th:text="${txn.totalFormatted}"></td>
                         <td th:text="${#temporals.format(txn.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
