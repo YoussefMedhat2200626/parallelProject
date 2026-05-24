@@ -5,9 +5,10 @@ Handles headings, paragraphs, code blocks, tables, bold/italic, and lists.
 import re
 import os
 from fpdf import FPDF, XPos, YPos
-
-INPUT_MD = r"D:\2026 parallel\parallelProject\Distributed_Marketplace_Full_Documentation.md"
-OUTPUT_PDF = r"D:\2026 parallel\parallelProject\Distributed_Marketplace_Full_Documentation.pdf"
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+INPUT_MD = os.path.join(dir_path, "Distributed_Marketplace_Full_Documentation.md")
+OUTPUT_PDF = os.path.join(dir_path, "Distributed_Marketplace_Full_Documentation.pdf")
 
 
 class DocPDF(FPDF):

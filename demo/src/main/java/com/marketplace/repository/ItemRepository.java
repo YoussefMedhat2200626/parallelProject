@@ -24,6 +24,23 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
            "OR LOWER(i.category) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Item> searchItems(@Param("query") String query, @Param("userId") Long userId, @Param("status") ItemStatus status);
 
+    /**
+     * Phonetic (SOUNDEX) fuzzy search — returns items whose name, brand, or category
+     * sounds like the query word, enabling typo-tolerant search (e.g. "cheaost" → "cheapest").
+     */
+    @Query(value = "SELECT * FROM items i WHERE i.status = :status AND i.seller_id <> :userId " +
+                   "AND (SOUNDEX(i.name) = SOUNDEX(:query) " +
+                   "OR SOUNDEX(i.brand) = SOUNDEX(:query) " +
+                   "OR SOUNDEX(i.category) = SOUNDEX(:query) " +
+                   "OR i.name LIKE CONCAT(:queryPrefix, '%') " +
+                   "OR i.brand LIKE CONCAT(:queryPrefix, '%') " +
+                   "OR i.category LIKE CONCAT(:queryPrefix, '%'))",
+           nativeQuery = true)
+    List<Item> fuzzySearchItems(@Param("query") String query,
+                                @Param("queryPrefix") String queryPrefix,
+                                @Param("userId") Long userId,
+                                @Param("status") String status);
+
     @Query("SELECT i FROM Item i WHERE i.status = :status AND i.sellerId <> :userId")
     List<Item> findAllActiveExcludingSeller(@Param("userId") Long userId, @Param("status") ItemStatus status);
 

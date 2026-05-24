@@ -19,15 +19,17 @@ public class MarketplaceController {
     private final InventoryService inventoryService;
     private final TwoFactorService twoFactorService;
     private final UserService userService;
+    private final AiServiceClient aiServiceClient;
 
     public MarketplaceController(ItemService itemService, TransactionService transactionService,
                                  InventoryService inventoryService, TwoFactorService twoFactorService,
-                                 UserService userService) {
+                                 UserService userService, AiServiceClient aiServiceClient) {
         this.itemService = itemService;
         this.transactionService = transactionService;
         this.inventoryService = inventoryService;
         this.twoFactorService = twoFactorService;
         this.userService = userService;
+        this.aiServiceClient = aiServiceClient;
     }
 
     @GetMapping("/search")
@@ -38,8 +40,35 @@ public class MarketplaceController {
 
         List<Item> items;
         if (q != null && !q.isBlank()) {
-            items = itemService.searchItems(q, userId);
             model.addAttribute("query", q);
+
+            // 1. Try exact keyword search first (fast, no AI overhead)
+            items = itemService.searchItems(q, userId);
+
+            // 2. If no exact match found, fall back to AI semantic search
+            if (items == null || items.isEmpty()) {
+                List<Item> allAvailableItems = itemService.browseItems(userId);
+                com.marketplace.dto.AiSearchResponse aiResponse = aiServiceClient.smartSearch(q, allAvailableItems);
+
+                if (aiResponse.getResults() != null && !aiResponse.getResults().isEmpty()) {
+                    model.addAttribute("searchSummary", aiResponse.getSearch_summary());
+
+                    List<Item> aiItems = new java.util.ArrayList<>();
+                    java.util.Map<Long, String> aiReasons = new java.util.HashMap<>();
+
+                    for (com.marketplace.dto.AiItemResult result : aiResponse.getResults()) {
+                        allAvailableItems.stream()
+                                .filter(i -> i.getItemId().equals(result.getId()))
+                                .findFirst()
+                                .ifPresent(item -> {
+                                    aiItems.add(item);
+                                    aiReasons.put(item.getItemId(), result.getReason());
+                                });
+                    }
+                    items = aiItems;
+                    model.addAttribute("aiReasons", aiReasons);
+                }
+            }
         } else {
             items = itemService.browseItems(userId);
         }

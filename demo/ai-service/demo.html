@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Marketplace Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            background: -webkit-linear-gradient(#60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: #e2e8f0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #0f172a;
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+            min-height: 50px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AI Marketplace</h1>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">Intelligent features powered by Gemini</p>
+    </header>
+
+    <div class="container">
+        <!-- AI Smart Search Feature -->
+        <div class="card" id="search-card">
+            <h2>AI Smart Search</h2>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Search naturally instead of exact keywords. E.g., <i>"cheap gift for a techie under 100"</i>
+            </p>
+            <label for="search-query">Search Query</label>
+            <input type="text" id="search-query" placeholder="e.g. something nice for a birthday under 500" value="something nice for a birthday under 500">
+            
+            <button id="btn-search">
+                <span class="loader hidden" id="search-loader"></span>
+                <span id="search-btn-text">Search Products</span>
+            </button>
+
+            <div class="result-box" id="search-result">Results will appear here...</div>
+        </div>
+
+        <!-- AI Product Enrichment Feature -->
+        <div class="card" id="enrich-card">
+            <h2>AI Product Enrichment</h2>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Auto-generate professional descriptions and tags from basic info.
+            </p>
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <div style="flex: 1;">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" placeholder="e.g. Wireless Headphones" value="Wireless Headphones">
+                </div>
+                <div style="flex: 1;">
+                    <label for="product-brand">Brand</label>
+                    <input type="text" id="product-brand" placeholder="e.g. Sony" value="Sony">
+                </div>
+            </div>
+            
+            <button id="btn-enrich">
+                <span class="loader hidden" id="enrich-loader"></span>
+                <span id="enrich-btn-text">Generate Listing</span>
+            </button>
+
+            <div class="result-box" id="enrich-result">Enriched data will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:9090';
+        
+        // Mock inventory for search
+        const inventory = [
+            { id: 1, name: "Wireless Headphones", brand: "Sony", price: 450, description: "Premium wireless headphones with noise cancellation" },
+            { id: 2, name: "USB-C Cable", brand: "Anker", price: 30, description: "Fast charging USB cable" },
+            { id: 3, name: "Smartwatch", brand: "Samsung", price: 380, description: "Galaxy smartwatch with health tracking" },
+            { id: 4, name: "Laptop Stand", brand: "Rain Design", price: 200, description: "Aluminum laptop stand for better ergonomics" },
+            { id: 5, name: "Mechanical Keyboard", brand: "Keychron", price: 300, description: "Wireless mechanical keyboard with RGB lighting" }
+        ];
+
+        async function fetchAPI(endpoint, payload) {
+            // Using text/plain to avoid preflight CORS OPTIONS request
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            return await response.json();
+        }
+
+        // Search Action
+        document.getElementById('btn-search').addEventListener('click', async () => {
+            const query = document.getElementById('search-query').value;
+            if (!query) return;
+
+            const btnText = document.getElementById('search-btn-text');
+            const loader = document.getElementById('search-loader');
+            const resultBox = document.getElementById('search-result');
+            const btn = document.getElementById('btn-search');
+
+            btn.disabled = true;
+            btnText.textContent = "Searching...";
+            loader.classList.remove('hidden');
+            resultBox.textContent = "Thinking...";
+
+            try {
+                const data = await fetchAPI('/ai/search', {
+                    query: query,
+                    items: inventory
+                });
+                
+                let html = `<strong>Summary:</strong> ${data.search_summary}\n\n`;
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(item => {
+                        html += `• [${Math.round(item.relevance_score * 100)}%] <strong>${item.brand} ${item.name}</strong> ($${item.price})\n`;
+                        html += `  <em>Reason:</em> ${item.reason}\n\n`;
+                    });
+                } else {
+                    html += "No relevant products found.";
+                }
+                
+                resultBox.innerHTML = html.trim().replace(/\n/g, '<br>');
+            } catch (err) {
+                resultBox.innerHTML = `<span style="color:#ef4444;">Error: ${err.message}</span>`;
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "Search Products";
+                loader.classList.add('hidden');
+            }
+        });
+
+        // Enrich Action
+        document.getElementById('btn-enrich').addEventListener('click', async () => {
+            const name = document.getElementById('product-name').value;
+            const brand = document.getElementById('product-brand').value;
+            if (!name) return;
+
+            const btnText = document.getElementById('enrich-btn-text');
+            const loader = document.getElementById('enrich-loader');
+            const resultBox = document.getElementById('enrich-result');
+            const btn = document.getElementById('btn-enrich');
+
+            btn.disabled = true;
+            btnText.textContent = "Generating...";
+            loader.classList.remove('hidden');
+            resultBox.textContent = "Generating description and tags...";
+
+            try {
+                const data = await fetchAPI('/ai/enrich', {
+                    name: name,
+                    brand: brand,
+                    category: "Electronics",
+                    price: 450
+                });
+                
+                let html = `<strong>Category Suggestion:</strong> ${data.category_suggestion}\n\n`;
+                html += `<strong>Generated Description:</strong>\n${data.description}\n\n`;
+                
+                if (data.tags) {
+                    html += `<strong>Tags:</strong>\n`;
+                    html += data.tags.map(t => `<span style="display:inline-block; background:#1e3a8a; color:#bfdbfe; padding:2px 8px; border-radius:12px; margin:2px; font-size:0.8rem;">#${t}</span>`).join(' ');
+                }
+                
+                resultBox.innerHTML = html.replace(/\n/g, '<br>');
+            } catch (err) {
+                resultBox.innerHTML = `<span style="color:#ef4444;">Error: ${err.message}</span>`;
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "Generate Listing";
+                loader.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

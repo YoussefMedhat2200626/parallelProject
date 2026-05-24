@@ -101,12 +101,22 @@ public class ItemService {
 
     /**
      * Search items by name, brand, or category — excludes seller's own items.
+     * Falls back to phonetic (SOUNDEX) fuzzy search when the exact match finds nothing,
+     * enabling typo-tolerant queries such as "cheaost" matching "cheapest".
      */
     public List<Item> searchItems(String query, Long currentUserId) {
         if (query == null || query.isBlank()) {
             return itemRepository.findAllActiveExcludingSeller(currentUserId, ItemStatus.ACTIVE);
         }
-        return itemRepository.searchItems(query.trim(), currentUserId, ItemStatus.ACTIVE);
+        String trimmed = query.trim();
+        List<Item> results = itemRepository.searchItems(trimmed, currentUserId, ItemStatus.ACTIVE);
+        if (!results.isEmpty()) {
+            return results;
+        }
+        // Fallback: phonetic + prefix fuzzy search using SOUNDEX
+        String prefix = trimmed.length() > 3 ? trimmed.substring(0, 3).toLowerCase() : trimmed.toLowerCase();
+        LOG.info("Exact search found no results for '{}', falling back to fuzzy search", trimmed);
+        return itemRepository.fuzzySearchItems(trimmed, prefix, currentUserId, ItemStatus.ACTIVE.name());
     }
 
     /**

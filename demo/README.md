@@ -151,7 +151,8 @@ Implemented using raw Java Sockets. XML envelopes parsed manually.
 WSDL: http://localhost:9091/?wsdl (Generated via raw socket)
 Legacy WSDL: http://localhost:8080/ws/marketplace.wsdl
 
-### Bonus Features (3)
+### Bonus Features (4)
+- **AI Smart Search** — Natural language product search and semantic ranking powered by Google Gemini AI (communicates with external AI Service).
 - **2FA** — OTP codes for registration and purchases
 - **CSV Import** — Bulk product upload via CSV file
 - **External Store Interface** — API key-based store integration

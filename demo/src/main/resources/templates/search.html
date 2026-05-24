@@ -28,9 +28,15 @@
         <h2 class="page-title">Browse Marketplace</h2>
 
         <form th:action="@{/search}" method="get" class="search-form">
-            <input type="text" name="q" th:value="${query}" placeholder="Search by name, brand, or category..." class="search-input"/>
-            <button type="submit" class="btn btn-primary">🔍 Search</button>
+            <div style="display: flex; gap: 10px; flex: 1;">
+                <input type="text" name="q" th:value="${query}" placeholder="Search by name, brand, or category..." class="search-input" style="flex: 1;"/>
+                <button type="submit" class="btn btn-primary">🔍 Search</button>
+            </div>
         </form>
+
+        <div th:if="${searchSummary}" class="alert alert-info" style="margin-bottom: 20px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; color: #e5e7eb;">
+            <strong style="color: #60a5fa;">✨ AI Assistant:</strong> <span th:text="${searchSummary}"></span>
+        </div>
 
         <div th:if="${#lists.isEmpty(items)}" class="empty-state">
             <p>No items found. Try a different search term.</p>
@@ -44,6 +50,9 @@
                 <h4 th:text="${item.name}">Item Name</h4>
                 <p class="item-brand" th:text="${item.brand}">Brand</p>
                 <p class="item-desc" th:text="${item.description}">Description</p>
+                <div th:if="${aiReasons != null && aiReasons.containsKey(item.itemId)}" style="margin-top: 10px; font-size: 0.85rem; color: #9ca3af; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; border-left: 2px solid #8b5cf6;">
+                    <span style="color: #a78bfa; font-weight: bold;">💡 AI Note: </span><span th:text="${aiReasons.get(item.itemId)}"></span>
+                </div>
                 <div class="item-card-footer">
                     <span class="item-price" th:text="${item.priceFormatted}">$0.00</span>
                     <a th:href="@{/buy/{id}(id=${item.itemId})}" class="btn btn-primary btn-sm">Buy Now</a>
